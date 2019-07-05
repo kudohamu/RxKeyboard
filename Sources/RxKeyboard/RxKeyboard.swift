@@ -55,11 +55,13 @@ public class RxKeyboard: NSObject, RxKeyboardType {
       let keyboardWillHide = UIResponder.keyboardWillHideNotification
       let keyboardFrameEndKey = UIResponder.keyboardFrameEndUserInfoKey
       let applicationDidFinishLaunching = UIApplication.didFinishLaunchingNotification
+      let deviceOrientationDidChangeNotification = UIDevice.orientationDidChangeNotification
     #else
       let keyboardWillChangeFrame = NSNotification.Name.UIKeyboardWillChangeFrame
       let keyboardWillHide = NSNotification.Name.UIKeyboardWillHide
       let keyboardFrameEndKey = UIKeyboardFrameEndUserInfoKey
       let applicationDidFinishLaunching = NSNotification.Name.UIApplicationDidFinishLaunching
+      let deviceOrientationDidChangeNotification = NSNotification.Name.UIDeviceOrientationDidChange
     #endif
 
     let defaultFrame = CGRect(
@@ -136,6 +138,14 @@ public class RxKeyboard: NSObject, RxKeyboardType {
       .startWith(Void()) // when RxKeyboard is initialized before UIApplication.window is created
       .subscribe(onNext: { _ in
         UIApplication.shared.windows.first?.addGestureRecognizer(self.panRecognizer)
+      })
+      .disposed(by: self.disposeBag)
+
+    // orientation did change
+    NotificationCenter.default.rx.notification(deviceOrientationDidChangeNotification)
+      .map { _ in Void() }
+      .subscribe(onNext: {
+
       })
       .disposed(by: self.disposeBag)
   }
